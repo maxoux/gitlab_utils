@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab Utils
 // @namespace    http://tampermonkey.net/
-// @version      2024-01-16
+// @version      2024-01-26
 // @description  Little script to add some utils to gitlab website
 // @downloadURL  https://raw.githubusercontent.com/maxoux/gitlab_utils/main/script.user.js
 // @author       Matthieu Laizé
@@ -28,17 +28,34 @@ function listenForUrlChange(route, cb) {
   check();
 }
 
+function colorizeDraftMr(color) {
+  const draftMrs = Array.from(
+    document.querySelectorAll(".merge-request-title-text a")
+  ).filter((elem) => elem.text.startsWith("Draft: "));
+
+  draftMrs.forEach((element) => {
+    element.style.cssText += `color: ${color}; transition: color 0.3s`;
+  });
+}
+
+function colorizeApprovedMr(color) {
+  const approvedMrs = Array.from(document.querySelectorAll(".merge-request"))
+    .filter((elem) => !!elem.querySelector("[data-testid=approval-solid-icon]"))
+    .map((approved) => approved.querySelector(".merge-request-title-text a"));
+
+  console.log("Approved %d", approvedMrs.length);
+
+  approvedMrs.forEach((element) => {
+    element.style.cssText += `color: ${color}; transition: color 0.3s`;
+  });
+}
+
 (function () {
   "use strict";
 
   listenForUrlChange(PATH_MR, () => {
     console.log("Im on the way !");
-    const DraftMrs = Array.from(
-      document.querySelectorAll(".merge-request-title-text a")
-    ).filter((elem) => elem.text.startsWith("Draft: "));
-
-    DraftMrs.forEach((element) => {
-      element.style.cssText += "color: red; transition: color 0.3s";
-    });
+    colorizeDraftMr("red");
+    colorizeApprovedMr("#5ce75c");
   });
 })();
