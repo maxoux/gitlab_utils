@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gitlab Utils
 // @namespace    http://tampermonkey.net/
-// @version      2024-01-26
+// @version      2024-01-29
 // @description  Little script to add some utils to gitlab website
 // @downloadURL  https://raw.githubusercontent.com/maxoux/gitlab_utils/main/script.user.js
 // @author       Matthieu Laizé
@@ -43,9 +43,26 @@ function colorizeApprovedMr(color) {
     .filter((elem) => !!elem.querySelector("[data-testid=approval-solid-icon]"))
     .map((approved) => approved.querySelector(".merge-request-title-text a"));
 
-  console.log("Approved %d", approvedMrs.length);
-
   approvedMrs.forEach((element) => {
+    element.style.cssText += `color: ${color}; transition: color 0.3s`;
+  });
+}
+
+function colorizeRequestedMr(color) {
+  const strip = (str) => str.replace(/\?.*/g, "");
+
+  const userAvatar = document.querySelector(
+    "[data-testid=user-menu-toggle] img"
+  ).src;
+
+  const requestedMrs = Array.from(document.querySelectorAll(".merge-request"))
+    .filter(
+      (elem) =>
+        strip(elem.querySelector("img.avatar").src) === strip(userAvatar)
+    )
+    .map((mr) => mr.querySelector(".merge-request-title-text a"));
+
+  requestedMrs.forEach((element) => {
     element.style.cssText += `color: ${color}; transition: color 0.3s`;
   });
 }
@@ -56,6 +73,7 @@ function colorizeApprovedMr(color) {
   listenForUrlChange(PATH_MR, () => {
     console.log("Im on the way !");
     colorizeDraftMr("red");
+    colorizeRequestedMr("#caca56");
     colorizeApprovedMr("#5ce75c");
   });
 })();
