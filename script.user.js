@@ -73,8 +73,8 @@ function colorizeMrs(mrList, color) {
     const approvedList = mrList.filter(isApprovedMr);
     const requestedList = mrList.filter(isRequestedMr);
 
-    colorizeMrs(requestedList, "#caca56");
-    colorizeMrs(approvedList, "#5ce75c");
+    colorizeMrs(requestedList, "#baba6a");
+    colorizeMrs(approvedList, "#48b448");
     colorizeMrs(draftList, "red");
 
     console.log("drafts : ", draftList);
