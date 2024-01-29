@@ -28,27 +28,17 @@ function listenForUrlChange(route, cb) {
   check();
 }
 
-function colorizeDraftMr(color) {
-  const draftMrs = Array.from(
-    document.querySelectorAll(".merge-request-title-text a")
-  ).filter((elem) => elem.text.startsWith("Draft: "));
-
-  draftMrs.forEach((element) => {
-    element.style.cssText += `color: ${color}; transition: color 0.3s`;
-  });
+function isDraftMr(mr) {
+  return mr
+    .querySelector(".merge-request-title-text a")
+    .text.startsWith("Draft: ");
 }
 
-function colorizeApprovedMr(color) {
-  const approvedMrs = Array.from(document.querySelectorAll(".merge-request"))
-    .filter((elem) => !!elem.querySelector("[data-testid=approval-solid-icon]"))
-    .map((approved) => approved.querySelector(".merge-request-title-text a"));
-
-  approvedMrs.forEach((element) => {
-    element.style.cssText += `color: ${color}; transition: color 0.3s`;
-  });
+function isApprovedMr(mr) {
+  return !!mr.querySelector("[data-testid=approval-solid-icon]");
 }
 
-function colorizeRequestedMr(color) {
+function isRequestedMr(mr) {
   const strip = (str) => str.replace(/\?.*/g, "");
 
   const getRequestedAvatars = (mr) =>
@@ -60,12 +50,14 @@ function colorizeRequestedMr(color) {
     "[data-testid=user-menu-toggle] img"
   ).src;
 
-  const requestedMrs = Array.from(document.querySelectorAll(".merge-request"))
-    .filter((elem) => getRequestedAvatars(elem).includes(strip(userAvatar)))
-    .map((mr) => mr.querySelector(".merge-request-title-text a"));
+  return getRequestedAvatars(mr).includes(strip(userAvatar));
+}
 
-  requestedMrs.forEach((element) => {
-    element.style.cssText += `color: ${color}; transition: color 0.3s`;
+function colorizeMrs(mrList, color) {
+  mrList.forEach((element) => {
+    element.querySelector(
+      ".merge-request-title-text a"
+    ).style.cssText += `color: ${color}; transition: color 0.3s`;
   });
 }
 
@@ -73,9 +65,18 @@ function colorizeRequestedMr(color) {
   "use strict";
 
   listenForUrlChange(PATH_MR, () => {
-    console.log("Im on the way !");
-    colorizeDraftMr("red");
-    colorizeRequestedMr("#caca56");
-    colorizeApprovedMr("#5ce75c");
+    console.log("Adding some color !");
+
+    const mrList = Array.from(document.querySelectorAll(".merge-request"));
+
+    const draftList = mrList.filter(isDraftMr);
+    const approvedList = mrList.filter(isApprovedMr);
+    const requestedList = mrList.filter(isRequestedMr);
+
+    colorizeMrs(draftList, "red");
+    colorizeMrs(requestedList, "#caca56");
+    colorizeMrs(approvedList, "#5ce75c");
+
+    console.log("drafts : ", draftList);
   });
 })();
