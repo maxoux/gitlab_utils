@@ -51,15 +51,17 @@ function colorizeApprovedMr(color) {
 function colorizeRequestedMr(color) {
   const strip = (str) => str.replace(/\?.*/g, "");
 
+  const getRequestedAvatars = (mr) =>
+    Array.from(mr.querySelectorAll("img.avatar")).map((elem) =>
+      strip(elem.src)
+    );
+
   const userAvatar = document.querySelector(
     "[data-testid=user-menu-toggle] img"
   ).src;
 
   const requestedMrs = Array.from(document.querySelectorAll(".merge-request"))
-    .filter(
-      (elem) =>
-        strip(elem.querySelector("img.avatar").src) === strip(userAvatar)
-    )
+    .filter((elem) => getRequestedAvatars(elem).includes(strip(userAvatar)))
     .map((mr) => mr.querySelector(".merge-request-title-text a"));
 
   requestedMrs.forEach((element) => {
